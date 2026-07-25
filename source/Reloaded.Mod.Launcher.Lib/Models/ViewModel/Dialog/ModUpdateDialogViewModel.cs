@@ -50,8 +50,17 @@ public class ModUpdateDialogViewModel : ObservableObject
         Summary = summary;
         UpdateInfo = updateInfo;
         TotalSize = UpdateInfo.Sum(x => x.UpdateSize);
-        SelectedUpdate = UpdateInfo[0];
-        CanDownload = true;
+
+        if (UpdateInfo.Length > 0)
+        {
+            SelectedUpdate = UpdateInfo[0];
+            CanDownload = true;
+        }
+        else
+        {
+            SelectedUpdate = null;
+            CanDownload = false;
+        }
     }
 
     /// <summary>
