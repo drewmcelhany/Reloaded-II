@@ -61,15 +61,18 @@ public class ModUpdateSummary
             var modId = resultPairs.ModTuple.Config.ModId;
             var oldVersion = resultPairs.ModTuple.Config.ModVersion;
             var newVersion = resultPairs.Result.LastVersion;
-            var resolver = ((IPackageResolverDownloadSize)resultPairs.Manager.Resolver);
+            var resolver = resultPairs.Manager.Resolver;
             var updateSize = (long)0;
             string? changelog = null;
 
-            try
+            if (resolver is IPackageResolverDownloadSize hasDownloadSize)
             {
-                updateSize = await resolver.GetDownloadFileSizeAsync(newVersion!, resultPairs.ModTuple.GetVerificationInfo());
+                try
+                {
+                    updateSize = await hasDownloadSize.GetDownloadFileSizeAsync(newVersion!, resultPairs.ModTuple.GetVerificationInfo());
+                }
+                catch (Exception) { /* Ignored */ }
             }
-            catch (Exception) { /* Ignored */ }
 
             // Get changelog from supported resolver.
             if (resolver is IPackageResolverGetLatestReleaseMetadata getMetadata)
@@ -87,11 +90,15 @@ public class ModUpdateSummary
             // NuGet has special case, since it doesn't support release metadata but supports changelogs in nuspec.
             if (string.IsNullOrEmpty(changelog) && resolver is NuGetUpdateResolver nugetResolver)
             {
-                var copiedSettings = nugetResolver.GetResolverSettings();
-                var repository = NugetRepository.FromSourceUrl(copiedSettings.NugetRepository!.SourceUrl);
-                var reader = await repository.DownloadNuspecReaderAsync(new PackageIdentity(copiedSettings.PackageId, newVersion!));
-                if (reader != null)
-                    changelog = reader?.GetReleaseNotes();
+                try
+                {
+                    var copiedSettings = nugetResolver.GetResolverSettings();
+                    var repository = NugetRepository.FromSourceUrl(copiedSettings.NugetRepository!.SourceUrl);
+                    var reader = await repository.DownloadNuspecReaderAsync(new PackageIdentity(copiedSettings.PackageId, newVersion!));
+                    if (reader != null)
+                        changelog = reader?.GetReleaseNotes();
+                }
+                catch (Exception) { /* Ignored */ }
             }
 
             updates[x] = new ModUpdate(modId, NuGetVersion.Parse(oldVersion), newVersion!, updateSize, changelog, modName);
