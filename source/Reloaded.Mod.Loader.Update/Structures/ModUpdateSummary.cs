@@ -69,7 +69,7 @@ public class ModUpdateSummary
             {
                 try
                 {
-                    updateSize = await hasDownloadSize.GetDownloadFileSizeAsync(newVersion!, resultPairs.ModTuple.GetVerificationInfo());
+                    updateSize = await hasDownloadSize.GetDownloadFileSizeAsync(newVersion!, resultPairs.ModTuple.GetVerificationInfo()).ConfigureAwait(false);
                 }
                 catch (Exception) { /* Ignored */ }
             }
@@ -79,7 +79,7 @@ public class ModUpdateSummary
             {
                 try
                 {
-                    var releaseMetadata = await getMetadata.GetReleaseMetadataAsync(default);
+                    var releaseMetadata = await getMetadata.GetReleaseMetadataAsync(default).ConfigureAwait(false);
                     var extraData = releaseMetadata?.GetExtraData<ReleaseMetadataExtraData>();
                     if (extraData != null)
                         changelog = extraData.Changelog;
@@ -94,7 +94,7 @@ public class ModUpdateSummary
                 {
                     var copiedSettings = nugetResolver.GetResolverSettings();
                     var repository = NugetRepository.FromSourceUrl(copiedSettings.NugetRepository!.SourceUrl);
-                    var reader = await repository.DownloadNuspecReaderAsync(new PackageIdentity(copiedSettings.PackageId, newVersion!));
+                    var reader = await repository.DownloadNuspecReaderAsync(new PackageIdentity(copiedSettings.PackageId, newVersion!)).ConfigureAwait(false);
                     if (reader != null)
                         changelog = reader?.GetReleaseNotes();
                 }
