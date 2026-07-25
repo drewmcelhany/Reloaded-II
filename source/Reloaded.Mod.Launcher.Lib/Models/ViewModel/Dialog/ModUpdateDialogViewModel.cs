@@ -43,7 +43,6 @@ public class ModUpdateDialogViewModel : ObservableObject
 
     /// <summary>
     /// Creates the ViewModel using precomputed update info.
-    /// Prefer this overload; it performs no network I/O and is safe on the UI thread.
     /// </summary>
     public ModUpdateDialogViewModel(Updater updater, ModUpdateSummary summary, ModUpdate[] updateInfo)
     {
@@ -54,12 +53,6 @@ public class ModUpdateDialogViewModel : ObservableObject
         SelectedUpdate = UpdateInfo[0];
         CanDownload = true;
     }
-
-    /// <summary>
-    /// Legacy constructor. Performs blocking network I/O; do not call from the UI thread.
-    /// </summary>
-    public ModUpdateDialogViewModel(Updater updater, ModUpdateSummary summary)
-        : this(updater, summary, summary.GetUpdateInfo()) { }
 
     /// <summary>
     /// Performs an update of all mods.
